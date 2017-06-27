@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+
+<style type="text/css">
+	body{
+		font: 14px arial;
+	}
+	.suggest_link {
+		background-color: #FFFFFF;
+		padding: 2px 6px 2px 6px;
+	}
+	.suggest_link_over {
+		background-color: grey;
+		padding: 2px 6px 2px 6px;
+	}
+	#searchSuggest {
+		background-color: #FFFFFF; 
+		text-align: left; 
+		border: 1px solid #000000;
+		border-top : none;
+					
+	}		
+</style>
+</head>
+
+<body>
+	<form action="">
+	<br></br>
+		<table>
+			<tr><td><label style="color:blue">Please Enter the City Name : </label></td>
+			<td><input type="text" name="cityName" id ="city"
+				onKeyUp="checkCity(this.value)" autocomplete="off"/> 
+				</td></tr>
+			<tr><td></td><td><div id="searchSuggest" style="border:none"></div></td>
+		</table>
+	</form>
+</body>
+
+<script type="text/javascript">
+
+		function checkCity(cityName) {
+			var xhttp = new XMLHttpRequest();
+			xhttp.open("POST", "SearchURL?cityName=" + cityName, true);
+			xhttp.onreadystatechange = function() {
+				if (xhttp.readyState == 4 && this.status == 200) {
+					document.getElementById("searchSuggest").style = null;
+					if(xhttp.responseText === "" || xhttp.responseText == null){
+						document.getElementById("searchSuggest").innerHTML = "City Name Not Found";
+						document.getElementById("searchSuggest").style.color = "red";
+						document.getElementById("searchSuggest").style.border = "none";
+					}else{
+						//document.getElementById("searchSuggest").innerHTML = xhttp.responseText;
+						var ss = document.getElementById('searchSuggest')
+						ss.innerHTML = '';
+						var str = xhttp.responseText.split("\n");
+						for(i=0; i < str.length - 1; i++) {
+							//Build our element string.  This is cleaner using the DOM, but
+							//IE doesn't support dynamically added attributes.
+							var suggest = '<div onmouseover="javascript:suggestOver(this);" ';
+							suggest += 'onmouseout="javascript:suggestOut(this);" ';
+							suggest += 'onclick="javascript:setSearch(this.innerHTML);" ';
+							suggest += 'class="suggest_link">' + str[i] + '</div>';
+							ss.innerHTML += suggest;
+						}
+					}
+				}
+			};
+			console.log(xhttp);
+			xhttp.send();
+		}
+		//Mouse over function
+		function suggestOver(div_value) {
+			div_value.className = 'suggest_link_over';
+		}
+		//Mouse out function
+		function suggestOut(div_value) {
+			div_value.className = 'suggest_link';
+		}
+		//Click function , final set
+		function setSearch(value) {
+			document.getElementById('city').value = value;
+			document.getElementById('searchSuggest').innerHTML = '';
+			document.getElementById("searchSuggest").style.border = "none";
+		}
+</script>
+
+</html>
